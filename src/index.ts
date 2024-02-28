@@ -13,6 +13,7 @@ const printBoard = (board: Board): void => {
     console.log(row.map((cell) => cell.toString()).join(' '));
   });
   console.log();
+  console.log('Heuristic; ', calculateHeuristic(board));
 };
 
 const findEmptySpace = (board: Board): [number, number] => {
@@ -81,10 +82,40 @@ const askQuestion = (query: string): Promise<string> => {
   return new Promise((resolve) => rl.question(query, resolve));
 };
 
+const calculateHeuristic = (board: Board): number => {
+  let heuristic = 0;
+
+  const targetPositions: { [key: number]: number[] } = {
+    1: [0, 0],
+    2: [0, 1],
+    3: [0, 2],
+    4: [1, 0],
+    5: [1, 1],
+    6: [1, 2],
+    7: [2, 0],
+    8: [2, 1],
+    0: [2, 2],
+  };
+
+  for (let row = 0; row < board.length; row++) {
+    for (let col = 0; col < board[row].length; col++) {
+      const value = board[row][col];
+      if (value !== 0) {
+        // Exclude the empty space from the heuristic calculation
+        const targetPosition = targetPositions[value];
+        heuristic +=
+          Math.abs(row - targetPosition[0]) + Math.abs(col - targetPosition[1]);
+      }
+    }
+  }
+  return heuristic;
+};
+
 const main = async (): Promise<void> => {
   let board: Board = [
     [1, 2, 3],
-    [4, 0, 6],    [7, 5, 8],
+    [4, 0, 6],
+    [7, 5, 8],
   ];
 
   while (!isSolved(board)) {
